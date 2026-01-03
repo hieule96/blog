@@ -1,0 +1,35 @@
+baseURL: "https://hieule96.github.io/"
+languageCode: "en-us"
+title: "Heavenly Tech"
+theme: "PaperMod"
+
+params:
+  defaultTheme: dark
+  assets:
+    disableHLJS: true
+  homeInfoParams:
+    Title: "Welcome to Heavenly Tech"
+    Content: "Where technology meets serenity. Exploring the waves of innovation."
+  socialIcons:
+    - name: github
+      url: "https://github.com/hieule96"
+
+menu:
+  main:
+    - identifier: home
+      name: home
+      url: /
+      weight: 10
+    - identifier: posts
+      name: posts
+      url: /posts/
+      weight: 20
+    - identifier: categories
+      name: categories
+      url: /categories/
+      weight: 30
+    - identifier: tags
+      name: tags
+      url: /tags/
+      weight: 40
+
