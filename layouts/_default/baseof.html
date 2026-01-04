@@ -5,33 +5,65 @@
 <!DOCTYPE html>
 {{- $theme := site.Params.defaultTheme | default "auto" }}
 {{- if eq $theme "dark" }}
-<html lang="{{ site.Language }}" dir="{{ .Language.LanguageDirection | default " auto" }}" data-theme="dark">
+<html class="dark" lang="{{ site.Language }}" dir="{{ .Language.LanguageDirection | default "auto" }}">
 {{- else if eq $theme "light" }}
-<html lang="{{ site.Language }}" dir="{{ .Language.LanguageDirection | default " auto" }}" data-theme="light">
+<html lang="{{ site.Language }}" dir="{{ .Language.LanguageDirection | default "auto" }}">
 {{- else }}
-<html lang="{{ site.Language }}" dir="{{ .Language.LanguageDirection | default " auto" }}" data-theme="auto">
+<html lang="{{ site.Language }}" dir="{{ .Language.LanguageDirection | default "auto" }}">
 {{- end }}
 
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries,typography"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    
     {{- partial "head.html" . }}
 </head>
 
-{{- if (or (ne .Kind `page` ) (eq .Layout `archives`) (eq .Layout `search`)) }}
-
-<body class="list" id="top">
-    {{- else }}
-
-    <body id="top">
-        {{- end }}
-        <!-- Heavenly Wave Background -->
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased selection:bg-primary selection:text-white">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        
+        <!-- Wave Background -->
         <div id="wave-container">
             <canvas id="wave-canvas"></canvas>
         </div>
-        {{ partialCached "header.html" . .Page -}}
-        <main class="main">
-            {{- block "main" . }}{{ end }}
+        
+        {{- partial "header.html" . -}}
+        
+        <main class="flex-1 px-4 py-8 md:px-40">
+            <div class="mx-auto flex max-w-[960px] flex-col gap-8">
+                {{- block "main" . }}{{ end }}
+            </div>
         </main>
-        {{ partialCached "footer.html" . .Layout .Kind (.Param "hideFooter") (.Param "ShowCodeCopyButtons") -}}
-    </body>
+        
+        {{- partial "footer.html" . -}}
+    </div>
+</body>
 
 </html>

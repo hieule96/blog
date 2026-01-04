@@ -2,11 +2,10 @@
 title: 'Motion Compensation: The Invisible Architect of Video Compression'
 date: '2026-01-03'
 draft: false
-tags:
-  - video
+tags: []
 categories:
   - tutorial
-lastmod: '2026-01-03T15:43:15.541Z'
+lastmod: '2026-01-04T17:21:48.985Z'
 ---
 ## Introduction
 

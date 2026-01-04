@@ -1,0 +1,171 @@
+{{- define "main" }}
+
+{{- if .IsHome }}
+<!-- Hero Section -->
+<div class="flex flex-col gap-4">
+    <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white md:text-5xl">
+        {{ with site.Params.homeInfoParams.Title }}{{ . }}{{ else }}{{ site.Title }}{{ end }}
+    </h1>
+    <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
+        {{ with site.Params.homeInfoParams.Content }}{{ . | markdownify }}{{ end }}
+    </p>
+</div>
+
+<!-- Category Filter Chips -->
+{{- $categories := site.Taxonomies.categories }}
+{{- if $categories }}
+<div class="scrollbar-hide flex w-full gap-3 overflow-x-auto pb-2" id="filter-container">
+    <button data-filter="all"
+        class="filter-btn group flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary px-5 transition-colors text-white">
+        <span class="text-sm font-medium">All</span>
+    </button>
+    {{- range $name, $taxonomy := $categories }}
+    <button data-filter="{{ $name | lower }}"
+        class="filter-btn group flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white border border-slate-200 px-5 hover:border-primary dark:bg-slate-800 dark:border-slate-700 dark:hover:border-primary transition-all text-slate-600 dark:text-slate-300">
+        <span class="text-sm font-medium group-hover:text-primary dark:group-hover:text-primary transition-colors">
+            {{ $name | humanize | title }}
+        </span>
+    </button>
+    {{- end }}
+</div>
+{{- end }}
+
+{{- else }}
+<!-- Page Header -->
+<div class="flex flex-col gap-4">
+    <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white md:text-5xl">{{ .Title }}</h1>
+    {{- if .Description }}
+    <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl">{{ .Description | markdownify }}</p>
+    {{- end }}
+</div>
+{{- end }}
+
+{{- if .Content }}
+<div class="prose prose-slate dark:prose-invert max-w-none">
+    {{ .Content }}
+</div>
+{{- end }}
+
+<!-- Posts List -->
+{{- $pages := union .RegularPages .Sections }}
+{{- if .IsHome }}
+{{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true" }}
+
+<div class="flex flex-col gap-6" id="post-list">
+    {{- range $pages }}
+    {{- partial "post-card.html" (dict "page" . "isHidden" false) }}
+    {{- end }}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const buttons = document.querySelectorAll('.filter-btn');
+        const posts = document.querySelectorAll('.post-card');
+
+        // Active/Inactive class definitions
+        const activeClasses = ['bg-primary', 'text-white', 'border-transparent'];
+        const inactiveClasses = ['bg-white', 'border-slate-200', 'text-slate-600', 'dark:bg-slate-800', 'dark:border-slate-700', 'dark:text-slate-300'];
+
+        function setActive(btn) {
+            buttons.forEach(b => {
+                // Reset to inactive
+                b.classList.remove(...activeClasses);
+                b.classList.add(...inactiveClasses);
+                // Also handle the span text color if needed, but we rely on CSS inheritance/group-hover mostly.
+                // Resetting manually to ensure clean state
+            });
+
+            // Set active
+            btn.classList.remove(...inactiveClasses);
+            btn.classList.add(...activeClasses);
+        }
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.getAttribute('data-filter');
+                setActive(btn);
+
+                posts.forEach(post => {
+                    const categories = (post.getAttribute('data-categories') || '').trim().split(/\s+/);
+                    if (filter === 'all' || categories.includes(filter)) {
+                        post.classList.remove('hidden');
+                    } else {
+                        post.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+{{- else }}
+<!-- Standard Pagination for Non-Home Pages -->
+{{- $paginator := .Paginate $pages }}
+
+<div class="flex flex-col gap-6">
+    {{- range $paginator.Pages }}
+    {{- partial "post-card.html" (dict "page" . "isHidden" false) }}
+    {{- end }}
+</div>
+
+<!-- Pagination -->
+{{- if gt $paginator.TotalPages 1 }}
+<div class="flex justify-center pt-8">
+    <nav aria-label="Pagination" class="flex items-center gap-2">
+        {{- if $paginator.HasPrev }}
+        <a class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary dark:border-slate-800 dark:bg-[#15202b] dark:text-slate-300 dark:hover:border-primary dark:hover:text-primary"
+            href="{{ $paginator.Prev.URL | absURL }}">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </a>
+        {{- else }}
+        <span
+            class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 dark:border-slate-800 dark:bg-[#15202b] dark:text-slate-500">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </span>
+        {{- end }}
+
+        {{- $start := 1 }}
+        {{- $end := $paginator.TotalPages }}
+        {{- if gt $paginator.TotalPages 5 }}
+        {{- $start = sub $paginator.PageNumber 2 }}
+        {{- if lt $start 1 }}{{ $start = 1 }}{{ end }}
+        {{- $end = add $start 4 }}
+        {{- if gt $end $paginator.TotalPages }}
+        {{- $end = $paginator.TotalPages }}
+        {{- $start = sub $end 4 }}
+        {{- if lt $start 1 }}{{ $start = 1 }}{{ end }}
+        {{- end }}
+        {{- end }}
+
+        {{- range (seq $start $end) }}
+        {{- if eq . $paginator.PageNumber }}
+        <span
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-sm font-bold text-white shadow-md shadow-primary/20">
+            {{ . }}
+        </span>
+        {{- else }}
+        <a class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-600 hover:border-primary hover:text-primary dark:border-slate-800 dark:bg-[#15202b] dark:text-slate-300 dark:hover:border-primary dark:hover:text-primary"
+            href="{{ ($.Paginator.Pagers.Index (sub . 1)).URL | absURL }}">
+            {{ . }}
+        </a>
+        {{- end }}
+        {{- end }}
+
+        {{- if $paginator.HasNext }}
+        <a class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary dark:border-slate-800 dark:bg-[#15202b] dark:text-slate-300 dark:hover:border-primary dark:hover:text-primary"
+            href="{{ $paginator.Next.URL | absURL }}">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </a>
+        {{- else }}
+        <span
+            class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 dark:border-slate-800 dark:bg-[#15202b] dark:text-slate-500">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </span>
+        {{- end }}
+    </nav>
+</div>
+{{- end }}
+{{- end }}
+
+{{- end }}

@@ -1,0 +1,73 @@
+{{- define "main" }}
+
+<article class="flex flex-col gap-8">
+    <!-- Article Header -->
+    <header class="flex flex-col gap-4">
+        <div class="flex items-center gap-3 text-xs font-medium font-mono">
+            <span class="text-primary">// {{ .Date.Format "2006-01-02" }}</span>
+            {{- with .Params.categories }}
+            {{- range first 1 . }}
+            <span class="text-slate-400 dark:text-slate-500">•</span>
+            <a href="{{ printf " /categories/%s/" . | relURL }}"
+                class="rounded bg-slate-100 px-2 py-0.5 text-slate-600 hover:bg-primary hover:text-white dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-primary dark:hover:text-white transition-colors">{{
+                . }}</a>
+            {{- end }}
+            {{- end }}
+            <span class="text-slate-400 dark:text-slate-500">•</span>
+            <span class="text-slate-500 dark:text-slate-400">{{ .ReadingTime }} min read</span>
+        </div>
+
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white md:text-5xl">{{ .Title }}</h1>
+
+        {{- if .Description }}
+        <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl">{{ .Description }}</p>
+        {{- end }}
+
+        {{- with .Params.tags }}
+        <div class="flex flex-wrap gap-2">
+            {{- range . }}
+            <a href="{{ printf " /tags/%s/" . | relURL }}"
+                class="text-xs font-medium text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary">#{{
+                . }}</a>
+            {{- end }}
+        </div>
+        {{- end }}
+    </header>
+
+
+    {{- if .Params.cover.image }}
+    <!-- Cover Image -->
+    <div class="relative overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800">
+        <img src="{{ .Params.cover.image }}" alt="{{ .Params.cover.alt | default .Title }}"
+            class="w-full h-auto object-cover max-h-[500px]">
+    </div>
+    {{- end }}
+
+    <!-- Article Content -->
+    <div
+        class="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-100 prose-code:dark:bg-slate-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-900 prose-pre:dark:bg-slate-950">
+        {{ .Content }}
+    </div>
+
+    <!-- Post Navigation -->
+    <nav class="flex flex-col sm:flex-row justify-between gap-4 pt-8 border-t border-slate-200 dark:border-slate-800">
+        {{- with .PrevInSection }}
+        <a href="{{ .Permalink }}"
+            class="group flex flex-col gap-1 p-4 rounded-xl border border-slate-200 bg-white hover:border-primary/50 dark:border-slate-800 dark:bg-[#15202b] flex-1">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">← Previous</span>
+            <span class="text-sm font-semibold text-slate-900 group-hover:text-primary dark:text-white">{{ .Title
+                }}</span>
+        </a>
+        {{- end }}
+        {{- with .NextInSection }}
+        <a href="{{ .Permalink }}"
+            class="group flex flex-col gap-1 p-4 rounded-xl border border-slate-200 bg-white hover:border-primary/50 dark:border-slate-800 dark:bg-[#15202b] flex-1 text-right">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Next →</span>
+            <span class="text-sm font-semibold text-slate-900 group-hover:text-primary dark:text-white">{{ .Title
+                }}</span>
+        </a>
+        {{- end }}
+    </nav>
+</article>
+
+{{- end }}
