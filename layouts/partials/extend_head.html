@@ -1,11 +1,11 @@
 {{ $css := resources.Get "css/heavenly.css" }}
 {{ if $css }}
-<link rel="stylesheet" href="{{ $css.Permalink }}">
+<link rel="stylesheet" href="{{ $css.RelPermalink }}">
 {{ end }}
 
 {{ $js := resources.Get "js/wave.js" }}
 {{ if $js }}
-<script src="{{ $js.Permalink }}" defer></script>
+<script src="{{ $js.RelPermalink }}" defer></script>
 {{ end }}
 
 <!-- Mermaid.js for diagram rendering -->
